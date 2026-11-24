@@ -1,0 +1,17 @@
+# Maven build output
+target/
+
+# NetBeans private settings
+nbproject/private/
+nbactions.xml
+nb-configuration.xml
+
+# Mac system files
+.DS_Store
+
+# Logs and compiled files
+*.log
+*.class
+
+# Local database password file
+db.properties

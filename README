@@ -1,0 +1,25 @@
+# Movie Ticketing System
+
+A desktop app for a single-hall cinema, built with Java (Swing) and MySQL.
+
+## Who uses it
+- **Customers** log in, browse showtimes and book their own seats.
+- **Cashiers** sell tickets at the counter and print physical tickets.
+- **Managers** add movies and showtimes, set discounts and view sales overviews.
+
+## Tech
+- Java 21, NetBeans, Maven
+- Java Swing for the screens
+- MySQL with JDBC for the database
+
+## How to run
+1. Create the database by running `database/schema.sql` in MySQL.
+2. Copy `db.properties.example` to `db.properties` and enter your MySQL username and password.
+3. Open the project in NetBeans and press Run.
+
+## Project structure
+- `model` - classes like Movie, Showtime, Booking, User
+- `dao` - classes that talk to the database
+- `ui` - the Swing screens
+- `exception` - custom exceptions
+
