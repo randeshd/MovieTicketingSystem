@@ -1,0 +1,6 @@
+# Copy this file to db.properties (same folder, next to pom.xml) and fill in your own MySQL login.
+# db.properties is in .gitignore, so your password never goes to GitHub.
+url=jdbc:mysql://localhost:3306/movie_ticketing
+user=root
+password=CHANGE_ME
+
