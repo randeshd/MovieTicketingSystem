@@ -27,7 +27,7 @@ public final class TicketTypeDialog {
             panel.add(box);
             boxes.add(box);
         }
-        panel.add(new JLabel("Half = under 12, ID checked"));
+        panel.add(new JLabel("Half = under 12"));
         int ok = JOptionPane.showConfirmDialog(parent, panel, "Full or Half?", JOptionPane.OK_CANCEL_OPTION);
         if (ok != JOptionPane.OK_OPTION) return null;
         List<TicketType> types = new ArrayList<>();

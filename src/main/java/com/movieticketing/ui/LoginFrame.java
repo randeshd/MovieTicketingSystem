@@ -25,6 +25,14 @@ public class LoginFrame extends JFrame {
     private final JTextField txtEmail = new JTextField(22);
     private final JPasswordField txtPassword = new JPasswordField(22);
     private final JButton btnLogin = new JButton("Login");
+    private final JButton btnRegister = new JButton("New customer? Register");
+
+    /** Used after registering: opens the login screen with the new email already typed in. */
+    public LoginFrame(String email) {
+        this();
+        txtEmail.setText(email);
+        txtPassword.requestFocusInWindow();
+    }
 
     public LoginFrame() {
         super("ABC Cinema - Login");
@@ -49,11 +57,14 @@ public class LoginFrame extends JFrame {
         c.gridx = 1;              form.add(txtPassword, c);
         c.gridx = 1; c.gridy = 2; c.anchor = GridBagConstraints.EAST;
         form.add(btnLogin, c);
+        c.gridx = 0; c.gridy = 3; c.gridwidth = 2; c.anchor = GridBagConstraints.CENTER;
+        form.add(btnRegister, c);
         add(form, BorderLayout.CENTER);
 
         // EVENT HANDLING: a lambda runs when the button is clicked (Enter works too).
         btnLogin.addActionListener(e -> login());
         getRootPane().setDefaultButton(btnLogin);
+        btnRegister.addActionListener(e -> { new RegisterFrame().setVisible(true); dispose(); });
 
         pack();                       // size the window to fit its contents
         setLocationRelativeTo(null);  // centre of the screen

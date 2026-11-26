@@ -20,9 +20,9 @@ public class Ticket implements Printable {
         this.price = price;
     }
 
-    /** 18+ movie, or a Half ticket (under 12): the cashier checks ID before handing it over. */
+    /** 18+ movie only: the cashier checks ID. (Children don't carry ID, so Half is not checked.) */
     public boolean needsIdCheck() {
-        return showtime.getMovie().is18Plus() || type == TicketType.HALF;
+        return showtime.getMovie().is18Plus();
     }
 
     public boolean isPrinted() {
