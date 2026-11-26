@@ -1,0 +1,132 @@
+# Setup guide: ABC Cinema Movie Ticketing System
+
+This guide gets the app running on your own computer. It takes about 15 minutes. There's a section for Windows and one for Mac, so follow the one for your computer.
+
+## What you need installed
+
+The app was built and tested with these versions. Newer versions of the same major release are fine.
+
+| Tool | Version |
+|---|---|
+| Java (JDK) | 21 |
+| Apache NetBeans | 30 |
+| MySQL Server | 8.0.16 or newer (tested on 8.0.46) |
+| MySQL Workbench | 8.0 or newer |
+| Git | any recent version (only if you clone from GitHub) |
+
+You don't need to install Maven or the MySQL driver. NetBeans has Maven built in, and Maven downloads the driver (MySQL Connector/J 9.1.0) the first time you build.
+
+Before you start, make sure you know your MySQL **user** (usually `root`) and its **password**.
+
+---
+
+## Step 1: Get the project
+
+Choose **one** of these.
+
+**A. From the ZIP file**
+1. Unzip it somewhere easy to find, for example your Documents folder. Don't use a OneDrive or iCloud folder, because syncing can break the project files.
+2. In NetBeans: **File > Open Project…**, select the `MovieTicketingSystem` folder (the one with `pom.xml` in it) and click **Open Project**.
+
+**B. From GitHub (if you were added as a collaborator)**
+1. Accept the invite from the email GitHub sent you.
+2. Make a GitHub token: on github.com go to **Settings > Developer settings > Personal access tokens > Fine-grained tokens > Generate new token**. Choose **All repositories**, add the permission **Contents: Read and write**, then generate it and copy it somewhere safe. GitHub only shows it once.
+3. In NetBeans: **Team > Git > Clone…**
+   - Repository URL: `https://github.com/randeshd/MovieTicketingSystem.git`
+   - User: your GitHub username. Password: **the token** (not your GitHub password).
+   - Click Next, tick `master`, click Next, choose a folder (not OneDrive or iCloud), then click Finish.
+4. When NetBeans asks whether to open the project, click **Open Project**.
+
+---
+
+## Step 2: Create the database
+
+The scripts are in the project's `database` folder.
+
+### Windows
+
+1. Make sure MySQL is running. The MySQL installer sets it up as a Windows service that starts by itself. To check, press the Windows key, type **Services**, find **MySQL80** (or similar), and make sure its Status says **Running**. If it doesn't, right-click it and choose **Start**.
+2. Open **MySQL Workbench** and click your **Local instance** connection. Enter your MySQL password.
+3. **File > Open SQL Script…** and choose `database\schema.sql` from the project folder.
+4. Run the whole script with the **lightning bolt** button (the one without the cursor), or press **Ctrl + Shift + Enter**.
+5. The Output panel at the bottom should show only green ticks.
+6. Open `database\sample-data.sql` the same way and run it with the lightning bolt.
+7. In the left sidebar under **Schemas**, right-click and choose **Refresh All**. Expand `movie_ticketing` > Tables, and you should see 11 tables.
+
+### Mac
+
+1. Make sure MySQL is running.
+   - If you installed MySQL with the official installer: open **System Settings**, scroll to **MySQL**, and click **Start MySQL Server** if it is stopped.
+   - If you installed it with Homebrew: in Terminal, run `brew services start mysql`.
+2. Open **MySQL Workbench** and click your **Local instance** connection. Enter your MySQL password.
+3. **File > Open SQL Script…** and choose `database/schema.sql` from the project folder.
+4. Run the whole script with the **lightning bolt** button (the one without the cursor), or press **Cmd + Shift + Enter**.
+5. The Output panel at the bottom should show only green ticks.
+6. Open `database/sample-data.sql` the same way and run it with the lightning bolt.
+7. In the left sidebar under **Schemas**, right-click and choose **Refresh All**. Expand `movie_ticketing` > Tables, and you should see 11 tables.
+
+`schema.sql` deletes and rebuilds the database each time, so you can run both scripts again whenever you want a clean start.
+
+---
+
+## Step 3: Tell the app your MySQL login
+
+The app reads your MySQL login from a file called `db.properties`. Each person keeps their own copy, and it never goes to GitHub.
+
+This works the same on Windows and Mac:
+
+1. In NetBeans, open the **Files** tab (next to Projects).
+2. Right-click the top **MovieTicketingSystem** folder (the one that contains `pom.xml`) and choose **New > Other… > Other > Empty File**, then click Next.
+3. Name it exactly `db.properties` and click **Finish**.
+4. Paste in these three lines, and change the password to your own MySQL password (and the user too, if yours isn't `root`):
+   ```
+   url=jdbc:mysql://localhost:3306/movie_ticketing
+   user=root
+   password=YOUR_MYSQL_PASSWORD
+   ```
+5. Save with **Ctrl + S** (Windows) or **Cmd + S** (Mac).
+
+In the Files tab, `db.properties` should now sit at the same level as `pom.xml` and `db.properties.example`.
+
+---
+
+## Step 4: Build and run
+
+1. In the **Projects** tab, right-click **MovieTicketingSystem** and choose **Clean and Build**. The first build downloads the MySQL driver, so it needs internet and can take a minute. Wait for **BUILD SUCCESS** at the bottom.
+2. Click the green **Run** button (or press **F6**). If NetBeans asks for the main class, choose `com.movieticketing.MovieTicketingSystem`.
+3. The login screen opens. Log in as `manager@abccinema.lk` with the password `Password@123`.
+
+Every sample account uses `Password@123`:
+
+| Email | Role |
+|---|---|
+| manager@abccinema.lk | Manager |
+| saman@abccinema.lk | Cashier |
+| amaya@gmail.com | Customer |
+| kavindu@gmail.com | Customer who is 17, for testing the 18+ block |
+
+You can also click **New customer? Register** on the login screen to make your own customer account.
+
+---
+
+## If something goes wrong
+
+| What you see | What it means and how to fix it |
+|---|---|
+| `Missing db.properties at …` | The file isn't in the right place. It must be in the top project folder, next to `pom.xml`, and named exactly `db.properties`. On Windows, check that it didn't become `db.properties.txt`. |
+| `Access denied for user 'root'@'localhost'` | The password in `db.properties` is wrong. Fix it, save, and run again. |
+| "Cannot reach the database" or `Communications link failure` | MySQL isn't running. Start it as shown in Step 2, point 1. |
+| `Unknown database 'movie_ticketing'` | The scripts weren't run. Do Step 2. |
+| `invalid target release: 21` or `release version 21 not supported` | NetBeans is using an older Java. Go to **Tools > Java Platforms > Add Platform…** and add your JDK 21. Then right-click the project, choose **Properties > Build > Compile**, and pick JDK 21 as the Java Platform. |
+| `Error Code: 3819` while running the SQL scripts | Your MySQL is older than 8.0.16. Update MySQL Server. |
+| "This account has been deactivated" | That account (ruwan@abccinema.lk) is deactivated on purpose, to test the rule. Use another one. |
+
+## Saving your changes to GitHub (collaborators only)
+
+After each piece of work that builds and runs:
+1. Right-click the project and choose **Git > Commit…**. Write a short message that says what you changed, for example `Fix seat map refresh`, then click Commit.
+2. Right-click the project and choose **Git > Remote > Pull…** to get everyone else's latest work.
+3. Right-click the project and choose **Git > Remote > Push to Upstream**.
+
+Never commit `db.properties`. It's already in `.gitignore`, so Git ignores it automatically.
+

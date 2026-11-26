@@ -1,25 +1,113 @@
-# Movie Ticketing System
+# ABC Cinema: Movie Ticketing System
 
-A desktop app for a single-hall cinema, built with Java (Swing) and MySQL.
+A desktop app for a single-hall cinema, written in Java (Swing) with a MySQL database. Customers book their own seats online, cashiers sell and print tickets at the counter, and managers run the movies, showtimes, staff and reports.
 
-## Who uses it
-- **Customers** log in, browse showtimes and book their own seats.
-- **Cashiers** sell tickets at the counter and print physical tickets.
-- **Managers** add movies and showtimes, set discounts and view sales overviews.
+## What it does
 
-## Tech
-- Java 21, NetBeans, Maven
-- Java Swing for the screens
-- MySQL with JDBC for the database
+**Customers**
+- Register an account and log in
+- Browse the movies that are now showing and pick a showtime
+- Choose seats on a live seat map (40 seats, rows A to E), up to 10 per booking
+- Pick Full or Half (under 12) for each seat. Half tickets are not sold for 18+ movies.
+- Seats are held for 5 minutes while paying by card, then confirmed with a booking reference (for example `BK-7F3K2Q`)
+- Under-18 customers cannot book 18+ movies. Online booking closes 15 minutes before the show.
 
-## How to run
-1. Create the database by running `database/schema.sql` in MySQL.
-2. Copy `db.properties.example` to `db.properties` and enter your MySQL username and password.
-3. Open the project in NetBeans and press Run.
+**Cashiers**
+- Sell walk-in tickets by cash (change is worked out) or card
+- Find an online booking by its reference and print its tickets
+- Tickets for 18+ movies print "ID check required"
+- A ticket can only be printed once
+
+**Managers**
+- Add and edit movies (price, duration, 18+, status)
+- Schedule showtimes between 09:00 and 22:30. Shows cannot overlap, and there is a 15-minute cleaning gap between them.
+- Add cashiers and managers, and deactivate staff accounts
+- Set the Half ticket percentage (50% by default)
+- Reports: daily sales (online card, counter cash, counter card), sales per movie, and seat occupancy per show
+
+## Built with
+
+| Tool | Version |
+|---|---|
+| Java (JDK) | 21 |
+| Apache NetBeans | 30 |
+| Maven | the one bundled with NetBeans |
+| MySQL Server | 8.0.16 or newer (tested on 8.0.46) |
+| MySQL Workbench | 8.0 or newer |
+| MySQL Connector/J | 9.1.0 (Maven downloads it automatically) |
+
+## Running it
+
+Full steps for Windows and Mac are in [SETUP.md](SETUP.md). In short:
+
+1. In MySQL Workbench, run `database/schema.sql`, then `database/sample-data.sql`.
+2. Copy `db.properties.example` to `db.properties` (next to `pom.xml`) and put in your own MySQL user and password. This file is in `.gitignore`, so your password never goes to GitHub.
+3. Open the project in NetBeans and press Run. The main class is `com.movieticketing.MovieTicketingSystem`.
+
+## Sample logins
+
+Every sample account uses the password `Password@123`.
+
+| Email | Role | Notes |
+|---|---|---|
+| manager@abccinema.lk | Manager | |
+| saman@abccinema.lk | Cashier | |
+| dilani@abccinema.lk | Cashier | |
+| ruwan@abccinema.lk | Cashier | Deactivated, so login is refused |
+| amaya@gmail.com | Customer | Has an unprinted booking, BK-7F3K2Q |
+| kavindu@gmail.com | Customer | 17 years old, so cannot book 18+ movies |
+| tharushi@gmail.com | Customer | Has a hold that ran out |
+| ishan@gmail.com | Customer | Has a booking, BK-R8NB4T |
+
+Booking references to try at the cashier's "Issue tickets" screen: `BK-7F3K2Q`, `BK-R8NB4T`, `BK-X5GD3H` (not printed yet) and `BK-9TKR2A` (already printed, so it is refused).
 
 ## Project structure
-- `model` - classes like Movie, Showtime, Booking, User
-- `dao` - classes that talk to the database
-- `ui` - the Swing screens
-- `exception` - custom exceptions
 
+```
+MovieTicketingSystem/
+├── pom.xml                     Maven settings and the MySQL driver
+├── db.properties.example       copy to db.properties and add your MySQL login
+├── database/
+│   ├── schema.sql              creates the movie_ticketing database (11 tables)
+│   ├── sample-data.sql         demo staff, customers, movies, showtimes and bookings
+│   └── test-queries.sql        checks, must-fail tests and the queries the DAOs use
+├── docs/                       class diagram and ER diagram (PDF and draw.io)
+└── src/main/java/com/movieticketing/
+    ├── MovieTicketingSystem.java   starts the app (opens the login screen)
+    ├── model/       User, Customer, Cashier, Manager, Movie, Showtime, Seat,
+    │                Booking, Ticket, Payment, CardPayment, CashPayment,
+    │                Setting, SalesReport, Printable and the enums
+    ├── dao/         DatabaseConnection and one DAO per table
+    │                (User, Movie, Showtime, Seat, Booking, Setting, Report)
+    ├── service/     BookingService: holding seats, age check, payment
+    ├── exception/   SeatUnavailable, Payment, Authentication, Validation
+    ├── util/        PasswordUtil (salted SHA-256 password hashing)
+    └── ui/          LoginFrame, RegisterFrame, the three dashboards,
+                     SeatMapPanel and TicketTypeDialog
+```
+
+Screens talk to the service and DAO classes, and only the DAOs talk to MySQL. Screens never contain SQL.
+
+## OOP concepts used
+
+| Concept | Where |
+|---|---|
+| Encapsulation | Every model class keeps its fields private, with getters, setters and validation |
+| Inheritance | `Customer`, `Cashier` and `Manager` extend `User`. `CardPayment` and `CashPayment` extend `Payment`. Every window extends `JFrame`, and `SeatMapPanel` extends `JPanel`. |
+| Abstraction | `User` and `Payment` are abstract classes with abstract methods |
+| Polymorphism | `user.createDashboard()` opens the right screen for each role. `payment.process()` behaves differently for card and cash. |
+| Interface | `Ticket` and `SalesReport` implement `Printable` |
+| Composition | A `Booking` is made of `Ticket`s and has one `Payment` |
+| Custom exceptions | Four checked exceptions, for example `SeatUnavailableException` when two people pick the same seat |
+| Inner classes | The manager dashboard's tabs (`MoviesTab`, `ShowtimesTab`, `StaffTab`) |
+
+## Security
+
+- Passwords are stored as salted SHA-256 hashes, never as plain text.
+- Every query uses `PreparedStatement`, which blocks SQL injection.
+- The database login lives in `db.properties`, which is never committed.
+- The database itself rejects a seat sold twice for the same show (`UNIQUE (showtime_id, seat_id)`).
+
+## Diagrams
+
+The `docs/` folder holds the class diagram (model classes, data access, user interface) and the ER diagram, as PDFs and as draw.io files you can edit at [app.diagrams.net](https://app.diagrams.net).
