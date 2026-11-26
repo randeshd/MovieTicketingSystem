@@ -3,6 +3,7 @@ package com.movieticketing.model;
 import java.time.LocalDate;
 import java.time.Period;
 import javax.swing.JFrame;
+import com.movieticketing.ui.CustomerDashboard;
 
 public class Customer extends User {
 
@@ -30,7 +31,7 @@ public class Customer extends User {
 
     @Override
     public JFrame createDashboard() {
-        return null; // replaced when we build the customer screen
+        return new CustomerDashboard(this);
     }
 
     public int getCustomerId() { return customerId; }
