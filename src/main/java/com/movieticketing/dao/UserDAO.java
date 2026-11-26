@@ -131,7 +131,25 @@ public class UserDAO {
             ps.executeUpdate();
         }
     }
-
+    
+        /** For the manager's Staff tab: {userId, name, email, role, Active/Inactive}. */
+    public java.util.List<String[]> findStaff() throws SQLException {
+        java.util.List<String[]> rows = new java.util.ArrayList<>();
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(
+                 "SELECT user_id, name, email, role, is_active FROM users "
+               + "WHERE role IN ('CASHIER', 'MANAGER') ORDER BY role, name");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                rows.add(new String[] {
+                    String.valueOf(rs.getInt("user_id")), rs.getString("name"), rs.getString("email"),
+                    rs.getString("role"), rs.getBoolean("is_active") ? "Active" : "Inactive"
+                });
+            }
+        }
+        return rows;
+    }
+    
     // ---- private helpers ----
 
     private int insertUser(Connection con, String name, String email, String password, Role role) throws SQLException {

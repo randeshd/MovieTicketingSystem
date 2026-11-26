@@ -1,6 +1,7 @@
 package com.movieticketing.model;
 
 import javax.swing.JFrame;
+import com.movieticketing.ui.ManagerDashboard;
 
 public class Manager extends User {
 
@@ -13,7 +14,7 @@ public class Manager extends User {
 
     @Override
     public JFrame createDashboard() {
-        return null; // replaced when we build the manager screen
+        return new ManagerDashboard(this);
     }
 
     public int getManagerId() { return managerId; }
