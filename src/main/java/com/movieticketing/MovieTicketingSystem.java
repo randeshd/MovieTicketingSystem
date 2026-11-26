@@ -1,16 +1,25 @@
 package com.movieticketing;
 
-import com.movieticketing.model.Movie;
-import com.movieticketing.model.MovieStatus;
-import com.movieticketing.model.TicketType;
+import com.movieticketing.dao.UserDAO;
+import com.movieticketing.model.User;
 
 public class MovieTicketingSystem {
     public static void main(String[] args) {
-        Movie m = new Movie(1, "Night Shift", "Thriller", "A test movie", 135,
-                            true, null, 1200.00, MovieStatus.NOW_SHOWING);
-        System.out.println(m + " runs " + m.getFormattedDuration());
-        System.out.println("Bookable? " + m.isBookable());
-        System.out.println("Full: Rs. " + m.priceFor(TicketType.FULL, 50));
-        System.out.println("Half: Rs. " + m.priceFor(TicketType.HALF, 50));
+        UserDAO dao = new UserDAO();
+        String[][] tests = {
+            {"manager@abccinema.lk", "Password@123"},
+            {"amaya@gmail.com",      "Password@123"},
+            {"saman@abccinema.lk",   "Password@123"},
+            {"amaya@gmail.com",      "wrongpass"},
+            {"ruwan@abccinema.lk",   "Password@123"}
+        };
+        for (String[] t : tests) {
+            try {
+                User u = dao.login(t[0], t[1]);
+                System.out.println("OK   " + t[0] + " -> " + u.getClass().getSimpleName() + " " + u.getName());
+            } catch (Exception e) {
+                System.out.println("FAIL " + t[0] + " -> " + e.getMessage());
+            }
+        }
     }
 }
