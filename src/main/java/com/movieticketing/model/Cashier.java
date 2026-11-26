@@ -1,6 +1,7 @@
 package com.movieticketing.model;
 
 import javax.swing.JFrame;
+import com.movieticketing.ui.CashierDashboard;
 
 public class Cashier extends User {
 
@@ -18,7 +19,7 @@ public class Cashier extends User {
 
     @Override
     public JFrame createDashboard() {
-        return null; // replaced when we build the cashier screen
+        return new CashierDashboard(this);
     }
 
     public int getCashierId() { return cashierId; }
